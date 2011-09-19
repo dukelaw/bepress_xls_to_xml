@@ -29,17 +29,27 @@ def main():
     parser.add_option("-j", "--journal", dest="journal",
                       help="bepress directory name for journal")
     parser.add_option("-s", "--sheet", dest="sheet_index", default=0,
-                      help="sheet index") 
+                      help="Sheet index to extract from, startinf from '0'") 
     (options, args) = parser.parse_args()
-    #print options    
-    if len(args) != 0:
-        parser.error("incorrect number of arguments")
+    #print options
+    if not options.filename:
+        parser.error('-f or --filename: Need a filename!')
+    elif not options.output:
+        parser.error('-o or --output: Need an output file!')
+    elif not options.journal:
+        parser.error('-j or --journal: Need journal!')    
+    
+    try:
+        sheet_index = int(options.sheet_index)
+    except:
+        parser.error('-s or --sheet: Sheet index must be an integer!')
+           
     
     filename = options.filename
     output = options.output
     
     xls = open_workbook(filename)
-    xls_sheet = xls.sheet_by_index(options.sheet_index)
+    xls_sheet = xls.sheet_by_index(sheet_index)
     
     labels = xls_sheet.row(0)
     # the xml wants hyphen
