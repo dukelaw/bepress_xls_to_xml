@@ -1,0 +1,14 @@
+# bepress_xls_to_xml.py
+
+Usage: bepress_xls_to_xml.py [options] arg
+    
+    Options:
+      -h, --help            show this help message and exit
+      -f FILENAME, --filename=FILENAME
+                            read data from FILENAME
+      -o OUTPUT, --output=OUTPUT
+                            read data from FILENAME
+      -j JOURNAL, --journal=JOURNAL
+                            bepress directory name for journal
+      -s SHEET_INDEX, --sheet=SHEET_INDEX
+                            sheet index
