@@ -1,5 +1,11 @@
 #!/usr/bin/python
-from xlrd import open_workbook, cellname
+
+#=============================================================================
+# Transform a Excel 97-2003 spreadsheet to an XML file suitable for loading 
+# via XML batch upload for   
+#=============================================================================
+
+from xlrd import open_workbook, xldate_as_tuple
 from lxml import etree
 import optparse
 
@@ -58,7 +64,7 @@ def main():
             if row[i].ctype in [2,4]:
                 value = u"%d" % row[i].value
             elif row[i].ctype in [3]:
-                value = xlrd.xldate_as_tuple(row[i].value, xls.datemode)
+                value = xldate_as_tuple(row[i].value, xls.datemode)
             else:
                 value = row[i].value
             record[label] = value
@@ -72,8 +78,7 @@ def main():
         record['publication-date'] = '%04s-%02s-%s' % (record['year'],
                              record['month'],
                              '01')
-        publication_date = update_text('publication-date', document, record)
-        
+        publication_date = update_text('publication-date', document, record)        
         season = update_text('season', document, record)
     
         authors = etree.SubElement(document, 'authors')
