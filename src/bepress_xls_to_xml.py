@@ -139,8 +139,15 @@ def main():
         issue = etree.SubElement(document, 'issue')        
         issue.text = "%s/vol%s/iss%s" % (options.journal, record['volume'], 
                                          record['issue'])
+        # soruce field
         if 'source' in record:
-            update_text('source', document, record)
+            fields = etree.SubElement(document, 'fields')
+            source = etree.SubElement(fields, 'field')
+            source.attrib['name'] = 'source'
+            source.attrib['type'] = 'string'
+            value = etree.SubElement(source, 'value')
+            value.text = record['source']
+                    
     documents = etree.ElementTree(documents)
     
     xml_file = open(output, 'wb')
