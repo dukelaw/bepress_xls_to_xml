@@ -85,8 +85,8 @@ def main():
         # TODO Handle Seasons: Override if there is a season. Map each season
         # to a month date
         
-        record['publication-date'] = '%04s-%02s-%s' % (record['year'],
-                             record['month'],
+        record['publication-date'] = '%04s-%s-%s' % (record['year'],
+                             record['month'].zfill(2),
                              '01')
         publication_date = update_text('publication-date', document, record)        
         season = update_text('season', document, record)
