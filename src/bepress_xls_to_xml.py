@@ -136,12 +136,11 @@ def main():
     
         update_text('fulltext-url', document, record)
         update_text('document-type', document, record)                
-        issue = etree.SubElement(document, 'issue')
-        
-        
+        issue = etree.SubElement(document, 'issue')        
         issue.text = "%s/vol%s/iss%s" % (options.journal, record['volume'], 
                                          record['issue'])
-                                  
+        if 'source' in record:
+            update_text('source', document, record)
     documents = etree.ElementTree(documents)
     
     xml_file = open(output, 'wb')
