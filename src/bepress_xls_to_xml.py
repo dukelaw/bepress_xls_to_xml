@@ -82,14 +82,18 @@ def main():
         document = etree.SubElement(documents, 'document')         
             
         update_text('title', document, record)
-        # TODO Handle Seasons: Override if there is a season. Map each season
-        # to a month date
+        # Seasons need to have publication dates
+        if 'publication-date' in record:            
+            record['publication-date'] = '%04d-%02d-%02d' % record['publication-date'][0:3]
+            
+        else:
+            record['publication-date'] = '%04s-%s-%s' % (record['year'],
+                                 record['month'].zfill(2),
+                                 '01')
+        update_text('publication-date', document, record)        
         
-        record['publication-date'] = '%04s-%s-%s' % (record['year'],
-                             record['month'].zfill(2),
-                             '01')
-        publication_date = update_text('publication-date', document, record)        
-        season = update_text('season', document, record)
+        #season
+        update_text('season', document, record)
     
         authors = etree.SubElement(document, 'authors')
         i = 1
@@ -127,30 +131,30 @@ def main():
         
         abstract = etree.SubElement(document, 'abstract')        
         for text in record['abstract'].split('\n'):
-            p = etree.SubElement(abstract, 'p')
+            p = etree.SubElement(abstract, 'p')            
             p.text = "%s" % text
         if record['fpage']:
-            fpage = update_text('fpage', document, record)
+            update_text('fpage', document, record)
         if record['lpage']:        
-            lpage = update_text('lpage', document, record)
+            update_text('lpage', document, record)
     
         update_text('fulltext-url', document, record)
         update_text('document-type', document, record)                
         issue = etree.SubElement(document, 'issue')        
         issue.text = "%s/vol%s/iss%s" % (options.journal, record['volume'], 
                                          record['issue'])
-        # soruce field
-        if 'source' in record:
+        # source field
+        if 'source-citation' in record:
             fields = etree.SubElement(document, 'fields')
             source = etree.SubElement(fields, 'field')
             source.attrib['name'] = 'source'
             source.attrib['type'] = 'string'
             value = etree.SubElement(source, 'value')
-            value.text = record['source']
+            value.text = record['source-citation']
                     
     documents = etree.ElementTree(documents)
     
-    xml_file = open(output, 'wb')
+    xml_file = open(output, 'w')
     #print etree.tostring(documents, encoding='utf-8', xml_declaration=True, pretty_print=True)
     documents.write(xml_file, encoding='utf-8', xml_declaration=True, pretty_print=True)
     
