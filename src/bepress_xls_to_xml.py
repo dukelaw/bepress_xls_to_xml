@@ -1,5 +1,4 @@
-#!/usr/bin/python
-
+#! /usr/bin/python
 #=============================================================================
 # Transform a Excel 97-2003 spreadsheet to an XML file suitable for loading 
 # via XML batch upload for   
@@ -71,10 +70,15 @@ def main():
         record = {}
         for (i, label) in enumerate(labels):
             # force floats DATE and NUMBER into a string
-            if row[i].ctype in [2,4]:
+            if row[i].ctype in [2]:
                 value = u"%d" % row[i].value
             elif row[i].ctype in [3]:
                 value = xldate_as_tuple(row[i].value, xls.datemode)
+            elif row[i].ctype in [4]:
+                if row[i].value:
+                    value = True
+                else:
+                    value = False                                                                
             else:
                 value = row[i].value
             record[label] = value
@@ -96,26 +100,29 @@ def main():
         update_text('season', document, record)
     
         authors = etree.SubElement(document, 'authors')
-        i = 1
-        while record.get('author%s-lname' % i, None):
+        i = 1            
+        while record.get('author%s-fname' % i, None):
             author_n = 'author%s-' % i
-    
-            author = etree.SubElement(authors, 'author')         
-            author.attrib['{%s}type' % XSI_NS] = 'individual'
-    #        
-    #        email = etree.SubElement(author, 'email')
-    #        institution = etree.SubElement(author, 'institution')
-            lname = etree.SubElement(author, 'lname')
-            lname.text = record[author_n + 'lname']
+            author = etree.SubElement(authors, 'author')
             
-            fname = etree.SubElement(author, 'fname')
-            fname.text = record[author_n + 'fname']
-            
-            mname = etree.SubElement(author, 'mname')
-            mname.text = record[author_n + 'mname']
-            
-            mname = etree.SubElement(author, 'suffix')
-            mname.text = record[author_n + 'suffix']      
+            if record.get(author_n + 'is-corporate', False) == True:                
+                author.attrib['{%s}type' % XSI_NS] = 'corporate'
+                name = etree.SubElement(author, "name")                
+                name.text = record[author_n +'fname']
+            else:                
+                author.attrib['{%s}type' % XSI_NS] = 'individual'
+                email = etree.SubElement(author, 'email')
+                email.text = record[author_n + 'email']
+                institution = etree.SubElement(author, 'institution')
+                institution.text = record[author_n + 'institution'] 
+                lname = etree.SubElement(author, 'lname')
+                lname.text = record[author_n + 'lname']
+                fname = etree.SubElement(author, 'fname')
+                fname.text = record[author_n + 'fname']                
+                mname = etree.SubElement(author, 'mname')
+                mname.text = record[author_n + 'mname']
+                mname = etree.SubElement(author, 'suffix')
+                mname.text = record[author_n + 'suffix']      
             i+=1      
         
         disciplines = etree.SubElement(document, 'disciplines')
@@ -129,10 +136,11 @@ def main():
             keyword = etree.SubElement(keywords, 'keyword')
             keyword.text = "%s" % kw
         
-        abstract = etree.SubElement(document, 'abstract')        
-        for text in record['abstract'].split('\n'):
-            p = etree.SubElement(abstract, 'p')            
-            p.text = "%s" % text
+        abstract = etree.SubElement(document, 'abstract')
+        if record['abstract']:      
+            for text in record['abstract'].split('\n'):
+                p = etree.SubElement(abstract, 'p')            
+                p.text = "%s" % text
         if record['fpage']:
             update_text('fpage', document, record)
         if record['lpage']:        
@@ -151,6 +159,14 @@ def main():
             source.attrib['type'] = 'string'
             value = etree.SubElement(source, 'value')
             value.text = record['source-citation']
+            
+        if 'publisher' in record:
+            fields = etree.SubElement(document, 'fields')
+            publisher = etree.SubElement(fields, 'field')
+            publisher.attrib['name'] = 'publisher'
+            publisher.attrib['type'] = 'string'
+            value = etree.SubElement(publisher, 'value')
+            value.text = record['publisher']
                     
     documents = etree.ElementTree(documents)
     
