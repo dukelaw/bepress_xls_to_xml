@@ -201,7 +201,7 @@ def main():
     
     xml_file = open(output, 'w')
     #print etree.tostring(documents, encoding='utf-8', xml_declaration=True, pretty_print=True)
-    documents.write(xml_file, encoding='ascii', xml_declaration=True, 
+    documents.write(xml_file, encoding=None,  xml_declaration=True, 
                     pretty_print=True, )
     
     print "Wrote: %s records." % len(data) 
