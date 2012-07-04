@@ -205,6 +205,16 @@ def main():
                     pretty_print=True, )
     
     print "Wrote: %s records." % len(data) 
+    
+    #fix encoding
+    xml_file.close()
+    xml_file = open(output, 'r')
+    lines = xml_file.readlines()
+    xml_file.close()
+    lines[0] = "<?xml version='1.0' encoding='utf-8'?>\n"
+    xml_file = open(output, 'w')
+    xml_file.writelines(lines)
+    xml_file.close()
 
 if __name__ == "__main__":
     main()
