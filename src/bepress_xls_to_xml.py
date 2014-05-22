@@ -72,6 +72,7 @@ def main():
     documents = etree.Element('documents', nsmap = {'xsi': XSI_NS,
                                                     'xsd': XSD_NS})
     documents.attrib['{%s}noNamespaceSchemaLocation' % XSI_NS] = 'http://www.bepress.com/document-import.xsd'
+
     print "Found %s rows in %s." % (xls_sheet.nrows, filename) 
     for row_index in range(1, xls_sheet.nrows):
         # be careful with order in the output xml. schema validates extremely
@@ -150,6 +151,7 @@ def main():
             keyword.text = "%s" % kw
         
         abstract = etree.SubElement(document, 'abstract')
+        
         if record['abstract']:
             if '<p>' in record['abstract'] or '<div>' in record['abstract']:
                 cleaner = Cleaner(allow_tags=['a', 'img', 'p', 'br', 'b', 'i', 'em', 'sub', 
@@ -180,22 +182,33 @@ def main():
         issue = etree.SubElement(document, 'issue')        
         issue.text = "%s/vol%s/iss%s" % (options.journal, record['volume'], 
                                          record['issue'])
-        # source field
+
+        # localized fieldnames
         fields = etree.SubElement(document, 'fields')
-        
-        if 'source-citation' in record:            
+        # source field
+        if 'source' in record:            
             source = etree.SubElement(fields, 'field')
             source.attrib['name'] = 'source'
             source.attrib['type'] = 'string'
             value = etree.SubElement(source, 'value')
-            value.text = record['source-citation']
-            
+            value.text = record['source']
+
+        # customized publisher name field
         if 'publisher' in record:                        
             publisher = etree.SubElement(fields, 'field')
             publisher.attrib['name'] = 'publisher'
             publisher.attrib['type'] = 'string'
             value = etree.SubElement(publisher, 'value')
             value.text = record['publisher']
+
+        # handle dois
+        if 'doi' in record:                        
+            doi = etree.SubElement(fields, 'field')
+            doi.attrib['name'] = 'doi'
+            doi.attrib['type'] = 'string'
+            value = etree.SubElement(doi, 'value')
+            value.text = record['doi']
+
                     
     documents = etree.ElementTree(documents)
     
